@@ -502,6 +502,7 @@ private:
         }
     }
 
+    std::function<void(const char*)> _errorCb{nullptr};
 protected:
     /**
      *  Method that is called when the heartbeat frequency is negotiated between the server and the client.
@@ -519,6 +520,45 @@ protected:
 
         // we agree with the interval
         return interval;
+    }
+
+    /**
+     *  Method that is called when the TCP connection ends up in a connected state
+     *  @param  connection  The TCP connection
+     */
+    void onConnected(TcpConnection *connection) override
+    {// implement action if need
+    }
+
+    /**
+     *  Method that is called when the server sends a heartbeat to the client
+     *  @param  connection      The connection over which the heartbeat was received
+     *
+     *  @see    ConnectionHandler::onHeartbeat
+     */
+    void onHeartbeat(TcpConnection *connection)
+    {// implement action if need
+    }
+
+    /**
+     *  Method that is called when the TCP connection ends up in an error state
+     *  @param  connection  The TCP connection
+     *  @param  message     Error message
+     */
+    void onError(TcpConnection *connection, const char *message) override
+    {
+        if (_errorCb)
+        {
+            _errorCb(message);
+        }
+    }
+
+    /**
+     *  Method that is called when the TCP connection is closed
+     *  @param  connection  The TCP connection
+     */
+    virtual void onClosed(TcpConnection *connection) override
+    {// implement action if need
     }
 
 public:
@@ -563,6 +603,11 @@ public:
      *  Destructor
      */
     ~LibBoostAsioHandler() override = default;
+
+    void setErrorCb(std::function<void(const char*)> cb)
+    {
+        _errorCb = cb;
+    }
 };
 
 
